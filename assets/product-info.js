@@ -181,10 +181,10 @@ if (!customElements.get('product-info')) {
             this.updateURL(productUrl, variant?.id);
             this.updateVariantInputs(variant?.id);
 
-            // if (!variant) {
-            //   this.setUnavailable();
-            //   return;
-            // }
+            if (!variant) {
+              this.setUnavailable();
+              return;
+            }
 
             this.updateMedia(html, variant?.featured_media?.id);
 
@@ -329,7 +329,7 @@ if (!customElements.get('product-info')) {
               mediaGalleryDestination.querySelectorAll('li[data-media-id]')
             );
             const destinationSet = new Set(mediaGalleryDestinationItems.map(({ dataset }) => dataset.mediaId));
-            let shouldRefresh = false;
+            let shouldRefresh = true;
   
             // add items from new data not present in DOM
             for (let i = mediaGalleryDestinationItems.length - 1; i >= 0; i--) {
