@@ -67,7 +67,8 @@ if (!customElements.get('product-info')) {
   
           const productUrl = target.dataset.productUrl || this.pendingRequestUrl || this.dataset.url;
           this.pendingRequestUrl = productUrl;
-          const shouldSwapProduct = this.dataset.url !== productUrl;
+          // const shouldSwapProduct = this.dataset.url !== productUrl;
+          const shouldSwapProduct = true
           const shouldFetchFullPage = this.dataset.updateUrl === 'true' && shouldSwapProduct;
   
           this.renderProductInfo({
@@ -178,10 +179,10 @@ if (!customElements.get('product-info')) {
             this.updateURL(productUrl, variant?.id);
             this.updateVariantInputs(variant?.id);
   
-            // if (!variant) {
-            //   this.setUnavailable();
-            //   return;
-            // }
+            if (!variant) {
+              this.setUnavailable();
+              return;
+            }
   
             this.updateMedia(html, variant?.featured_media?.id);
   
