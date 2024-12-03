@@ -559,12 +559,7 @@
           {%- elsif card_product.compare_at_price > card_product.price and card_product.available -%}
             {% assign discount_amount = card_product.compare_at_price | minus: card_product.price %}
             {% assign discount_percentage = discount_amount | divided_by: card_product.compare_at_price | times: 100 | round %}
-            <span
-              id="Badge-{{ section_id }}-{{ card_product.id }}"
-              class="badge badge--bottom-left color-{{ settings.sale_badge_color_scheme }}"
-            >
-              {{ discount_percentage }}% OFF
-            </span>
+
           {%- endif -%}
         </div>
       </div>
