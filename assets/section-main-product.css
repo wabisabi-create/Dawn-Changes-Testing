@@ -1496,7 +1496,7 @@ a.product__text {
 .size-guide-link {
   display: inline-flex;
   align-items: center;
-  font-size: 10px;
+  font-size: 10px !important;
   color: #000;
   text-decoration: none;
   margin-bottom: 16px;
