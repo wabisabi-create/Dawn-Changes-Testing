@@ -370,6 +370,14 @@
                       </price-per-item>
                     {%- endif -%}
                   </div>
+                  <button class="quantity__button" name="minus" type="button">
+                    <span class="visually-hidden">
+                      {{- 'products.product.quantity.decrease' | t: product: product.title | escape -}}
+                    </span>
+                    <span class="svg-wrapper">
+                      {{- 'icon-minus.svg' | inline_asset_content -}} Testing random shit
+                    </span>
+                  </button>                  
                   <div class="quantity__rules caption" id="Quantity-Rules-{{ section.id }}">
                     {%- if product.selected_or_first_available_variant.quantity_rule.increment > 1 -%}
                       <span class="divider">
