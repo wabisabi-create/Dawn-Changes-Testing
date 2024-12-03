@@ -67,7 +67,7 @@ if (!customElements.get('product-info')) {
   
           const productUrl = target.dataset.productUrl || this.pendingRequestUrl || this.dataset.url;
           this.pendingRequestUrl = productUrl;
-          const shouldSwapProduct = this.dataset.url !== productUrl;
+          const shouldSwapProduct = this.dataset.url !== productUrl || this.dataset.updateUrl === 'true';
           const shouldFetchFullPage = this.dataset.updateUrl === 'true' && shouldSwapProduct;
   
           this.renderProductInfo({
@@ -216,7 +216,6 @@ if (!customElements.get('product-info')) {
                 variant,
               },
             });
-            handleSwapProduct(productUrl, false)
           };
         }
   
