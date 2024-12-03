@@ -124,7 +124,7 @@
       </small>
     </div>s
     {%- if show_badges -%}
-      {%
+      {% liquid 
         assign mrp = compare_at_price | money
         assign rp = price |  money
         assign discount_amount = mrp |  minus: rp
