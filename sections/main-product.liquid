@@ -250,22 +250,20 @@
                       >
                     </span>
                   </label>
-                  <div class="price-per-item__container">
-
                   {% comment %} {%- if product.metafields.custom.size_guide -%} {% endcomment %}
-                    <a
-                      href="www.google.com"
-                      class="size-guide-link"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <span class="size-guide-icon">📏</span>
-                      <span class="size-guide-text">
-                        {{ 'Size Guide' | t }}
-                      </span>
-                    </a>
-                  {% comment %} {%- endif -%} {% endcomment %}
-                   
+                  <a
+                  href="www.google.com"
+                  class="size-guide-link"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span class="size-guide-icon">📏</span>
+                  <span class="size-guide-text">
+                    {{ 'Size Guide' | t }}
+                  </span>
+                </a>
+              {% comment %} {%- endif -%} {% endcomment %}                  
+                  <div class="price-per-item__container">                   
                     <quantity-input class="quantity" data-url="{{ product.url }}" data-section="{{ section.id }}">
                       <button class="quantity__button" name="minus" type="button">
                         <span class="visually-hidden">
