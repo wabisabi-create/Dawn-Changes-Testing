@@ -88,30 +88,6 @@ if (!customElements.get('product-info')) {
   
         handleSwapProduct(productUrl, updateFullPage) {
           return (html) => {
-            this.productModal?.remove();
-  
-            const selector = updateFullPage ? "product-info[id^='MainProduct']" : 'product-info';
-            const variant = this.getSelectedVariant(html.querySelector(selector));
-            this.updateURL(productUrl, variant?.id);
-  
-            if (updateFullPage) {
-              document.querySelector('head title').innerHTML = html.querySelector('head title').innerHTML;
-  
-              HTMLUpdateUtility.viewTransition(
-                document.querySelector('main'),
-                html.querySelector('main'),
-                this.preProcessHtmlCallbacks,
-                this.postProcessHtmlCallbacks
-              );
-            } else {
-              HTMLUpdateUtility.viewTransition(
-                this,
-                html.querySelector('product-info'),
-                this.preProcessHtmlCallbacks,
-                this.postProcessHtmlCallbacks
-              );
-            }
-
             // const variant = this.getSelectedVariant(html);
 
             const variantValues = variant.options
@@ -164,7 +140,30 @@ if (!customElements.get('product-info')) {
                 html,
                 variant,
               },
-            });                
+            });               
+            this.productModal?.remove();
+  
+            const selector = updateFullPage ? "product-info[id^='MainProduct']" : 'product-info';
+            const variant = this.getSelectedVariant(html.querySelector(selector));
+            this.updateURL(productUrl, variant?.id);
+  
+            if (updateFullPage) {
+              document.querySelector('head title').innerHTML = html.querySelector('head title').innerHTML;
+  
+              HTMLUpdateUtility.viewTransition(
+                document.querySelector('main'),
+                html.querySelector('main'),
+                this.preProcessHtmlCallbacks,
+                this.postProcessHtmlCallbacks
+              );
+            } else {
+              HTMLUpdateUtility.viewTransition(
+                this,
+                html.querySelector('product-info'),
+                this.preProcessHtmlCallbacks,
+                this.postProcessHtmlCallbacks
+              );
+            }             
           };    
         }
   
