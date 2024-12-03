@@ -390,9 +390,9 @@ if (!customElements.get('product-info')) {
             // Helper Methods
 
             handleColorSelection(selectedColorValue) {
-                const sizeSelector = this.querySelector('select[name="options[Size]"]'); // Adjust selector as needed
+                // const sizeSelector = this.querySelector('select[name="options[Size]"]'); // Adjust selector as needed
 
-                if (sizeSelector) {
+                // if (sizeSelector) {
                     const availableSizes = this.getAvailableSizesForColor(selectedColorValue);
 
                     if (availableSizes.length > 0) {
@@ -401,7 +401,7 @@ if (!customElements.get('product-info')) {
                     } else {
                         this.setUnavailable();
                     }
-                }
+                // }
             }
 
             getAvailableSizesForColor(selectedColorValue) {
