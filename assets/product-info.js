@@ -181,10 +181,10 @@ if (!customElements.get('product-info')) {
             this.updateURL(productUrl, variant?.id);
             this.updateVariantInputs(variant?.id);
 
-            if (!variant) {
-              this.setUnavailable();
-              return;
-            }
+            // if (!variant) {
+            //   this.setUnavailable();
+            //   return;
+            // }
 
             this.updateMedia(html, variant?.featured_media?.id);
 
