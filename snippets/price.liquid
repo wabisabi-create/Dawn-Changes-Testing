@@ -124,8 +124,12 @@
       </small>
     </div>s
     {%- if show_badges -%}
-      {% assign discount_amount = compare_at_price | money | minus: price %}
-      {% assign discount_percentage = discount_amount | divided_by: compare_at_price | money | times: 100 | round %}
+      {%
+        assign mrp = compare_at_price | money
+        assign rp = price |  money
+        assign discount_amount = mrp |  minus: rp
+        assign discount_percentage = discount_amount |  divided_by: mrp | times: 100 | round
+      %}
       <span class="badge price__badge-sale color-{{ settings.sale_badge_color_scheme }}">
         {{ discount_percentage }}% OFF
       </span>
