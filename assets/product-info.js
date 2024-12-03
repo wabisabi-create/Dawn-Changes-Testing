@@ -164,16 +164,18 @@ if (!customElements.get('product-info')) {
         handleUpdateProductInfo(productUrl) {
           return (html) => {
             const variant = this.getSelectedVariant(html);
-            const variantValues = variant?.options || [];
+            const selectedOptionValues = this.getSelectedOptionValues(); // Helper to fetch currently selected options (e.g., color, size)
         
-            // Ensure media updates occur for the new URL
+            // Ensure media updates occur for the selected color (or any other option)
             const mediaGallery = document.querySelector(`[id^="MediaGallery-${this.dataset.section}"]`);
             if (mediaGallery && mediaGallery.hasAttribute("media-grouping-enabled")) {
-              // Update media based on the new option values (e.g., color)
+              // Update media based on the selected options (e.g., color)
               mediaGallery.querySelectorAll('[data-media-group]').forEach(el => el.classList.add('hide-media'));
-              variantValues.forEach(value => {
+        
+              selectedOptionValues.forEach(value => {
                 mediaGallery.querySelectorAll(`[data-media-group="${value}"]`).forEach(el => el.classList.remove('hide-media'));
               });
+        
               mediaGallery.querySelectorAll('slider-component').forEach(slider => slider.initPages());
             }
         
@@ -183,6 +185,7 @@ if (!customElements.get('product-info')) {
             this.updateURL(productUrl, variant?.id);
             this.updateVariantInputs(variant?.id);
         
+            // If no valid variant exists, ensure media updates still reflect the selected options
             if (!variant) {
               this.setUnavailable();
               return;
@@ -224,6 +227,12 @@ if (!customElements.get('product-info')) {
             });
           };
         }
+
+        getSelectedOptionValues() {
+          const options = Array.from(this.querySelectorAll('[data-option-name]'));
+          return options.map(option => option.value || option.dataset.defaultValue);
+        }
+        
         
   
         updateVariantInputs(variantId) {
