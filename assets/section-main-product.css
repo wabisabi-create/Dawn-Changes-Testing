@@ -1492,3 +1492,19 @@ a.product__text {
     border: none;
   }
 }
+
+.size-guide-button {
+  display: inline-block;
+  margin-bottom: 16px;
+  padding: 10px 20px;
+  font-size: 14px;
+  color: #fff;
+  background-color: #0073e6;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.size-guide-button:hover {
+  background-color: #005bb5;
+}

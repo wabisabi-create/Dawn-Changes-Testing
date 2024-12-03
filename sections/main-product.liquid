@@ -251,6 +251,18 @@
                     </span>
                   </label>
                   <div class="price-per-item__container">
+
+                    {% comment %} {%- if product.metafields.custom.size_guide -%} {% endcomment %}
+                      <a
+                        href="{{ product.metafields.custom.size_guide }}"
+                        class="size-guide-button"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {{ 'Size Guide' | t }}
+                      </a>
+                    {% comment %} {%- endif -%} {% endcomment %}
+                    
                     <quantity-input class="quantity" data-url="{{ product.url }}" data-section="{{ section.id }}">
                       <button class="quantity__button" name="minus" type="button">
                         <span class="visually-hidden">
@@ -369,15 +381,7 @@
                         {%- endif -%}
                       </price-per-item>
                     {%- endif -%}
-                  </div>
-                  <button class="quantity__button" name="minus" type="button">
-                    <span class="visually-hidden">
-                      {{- 'products.product.quantity.decrease' | t: product: product.title | escape -}}
-                    </span>
-                    <span class="svg-wrapper">
-                      {{- 'icon-minus.svg' | inline_asset_content -}} Testing random shit
-                    </span>
-                  </button>                  
+                  </div>              
                   <div class="quantity__rules caption" id="Quantity-Rules-{{ section.id }}">
                     {%- if product.selected_or_first_available_variant.quantity_rule.increment > 1 -%}
                       <span class="divider">
