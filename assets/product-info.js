@@ -62,22 +62,22 @@ if (!customElements.get('product-info')) {
   
         handleOptionValueChange({ data: { event, target, selectedOptionValues } }) {
           if (!this.contains(event.target)) return;
-  
+        
           this.resetProductFormState();
-  
+        
           const productUrl = target.dataset.productUrl || this.pendingRequestUrl || this.dataset.url;
           this.pendingRequestUrl = productUrl;
           const shouldSwapProduct = this.dataset.url !== productUrl;
           const shouldFetchFullPage = this.dataset.updateUrl === 'true' && shouldSwapProduct;
-  
+        
           this.renderProductInfo({
             requestUrl: this.buildRequestUrlWithParams(productUrl, selectedOptionValues, shouldFetchFullPage),
             targetId: target.id,
             callback: shouldSwapProduct
               ? this.handleSwapProduct(productUrl, shouldFetchFullPage)
-              : this.handleUpdateProductInfo(productUrl),
+              : this.handleUpdateProductInfo(productUrl, selectedOptionValues), // Pass selectedOptionValues
           });
-        }
+        }        
   
         resetProductFormState() {
           const productForm = this.productForm;
@@ -161,62 +161,54 @@ if (!customElements.get('product-info')) {
           }
         }
 
-        handleUpdateProductInfo(productUrl) {
+        handleUpdateProductInfo(productUrl, selectedOptionValues) {
           return (html) => {
             const variant = this.getSelectedVariant(html);
-            const selectedOptionValues = this.getSelectedOptionValues(); // Helper to fetch currently selected options (e.g., color, size)
         
-            // Ensure media updates occur for the selected color (or any other option)
+            // Update sizes dynamically based on the selected color
+            const sizeSelector = this.querySelector('[data-option-name="Size"]');
+            const availableSizes = this.getAvailableSizes(html, selectedOptionValues); // Helper to fetch sizes for the selected color
+        
+            if (sizeSelector) {
+              // Clear and update size options
+              sizeSelector.innerHTML = '';
+              availableSizes.forEach(size => {
+                const option = document.createElement('option');
+                option.value = size;
+                option.textContent = size;
+                sizeSelector.appendChild(option);
+              });
+        
+              // Reset size to the first available option if the current one is invalid
+              const currentSize = sizeSelector.value;
+              if (!availableSizes.includes(currentSize)) {
+                sizeSelector.value = availableSizes[0]; // Set to the first available size
+                this.updateVariantInputs(null); // Reset variant input to reflect the new state
+              }
+            }
+        
+            // Ensure the media gallery updates
             const mediaGallery = document.querySelector(`[id^="MediaGallery-${this.dataset.section}"]`);
-            if (mediaGallery && mediaGallery.hasAttribute("media-grouping-enabled")) {
-              // Update media based on the selected options (e.g., color)
+            if (mediaGallery.hasAttribute('media-grouping-enabled')) {
               mediaGallery.querySelectorAll('[data-media-group]').forEach(el => el.classList.add('hide-media'));
-        
               selectedOptionValues.forEach(value => {
                 mediaGallery.querySelectorAll(`[data-media-group="${value}"]`).forEach(el => el.classList.remove('hide-media'));
               });
-        
               mediaGallery.querySelectorAll('slider-component').forEach(slider => slider.initPages());
             }
         
-            // Update other parts of the product info
-            this.pickupAvailability?.update(variant);
+            // Proceed with updating other product details
             this.updateOptionValues(html);
             this.updateURL(productUrl, variant?.id);
             this.updateVariantInputs(variant?.id);
         
-            // If no valid variant exists, ensure media updates still reflect the selected options
             if (!variant) {
               this.setUnavailable();
               return;
             }
         
-            // Update media specifically for the selected variant
             this.updateMedia(html, variant?.featured_media?.id);
-        
-            const updateSourceFromDestination = (id, shouldHide = (source) => false) => {
-              const source = html.getElementById(`${id}-${this.sectionId}`);
-              const destination = this.querySelector(`#${id}-${this.dataset.section}`);
-              if (source && destination) {
-                destination.innerHTML = source.innerHTML;
-                destination.classList.toggle('hidden', shouldHide(source));
-              }
-            };
-        
-            updateSourceFromDestination('price');
-            updateSourceFromDestination('Sku', ({ classList }) => classList.contains('hidden'));
-            updateSourceFromDestination('Inventory', ({ innerText }) => innerText === '');
-            updateSourceFromDestination('Volume');
-            updateSourceFromDestination('Price-Per-Item', ({ classList }) => classList.contains('hidden'));
-        
             this.updateQuantityRules(this.sectionId, html);
-            this.querySelector(`#Quantity-Rules-${this.dataset.section}`)?.classList.remove('hidden');
-            this.querySelector(`#Volume-Note-${this.dataset.section}`)?.classList.remove('hidden');
-        
-            this.productForm?.toggleSubmitButton(
-              html.getElementById(`ProductSubmitButton-${this.sectionId}`)?.hasAttribute('disabled') ?? true,
-              window.variantStrings.soldOut
-            );
         
             publish(PUB_SUB_EVENTS.variantChange, {
               data: {
@@ -227,14 +219,21 @@ if (!customElements.get('product-info')) {
             });
           };
         }
+        
 
-        getSelectedOptionValues() {
-          const options = Array.from(this.querySelectorAll('[data-option-name]'));
-          return options.map(option => option.value || option.dataset.defaultValue);
+        getAvailableSizes(html, selectedOptionValues) {
+          const sizeOptions = Array.from(html.querySelectorAll('[data-option-name="Size"] option'));
+          const availableSizes = sizeOptions
+            .filter(option => {
+              const mediaGroup = option.getAttribute('data-media-group');
+              return selectedOptionValues.includes(mediaGroup);
+            })
+            .map(option => option.value);
+        
+          return availableSizes;
         }
         
         
-  
         updateVariantInputs(variantId) {
           this.querySelectorAll(
             `#product-form-${this.dataset.section}, #product-form-installment-${this.dataset.section}`
