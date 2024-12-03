@@ -67,14 +67,15 @@ if (!customElements.get('product-info')) {
   
           const productUrl = target.dataset.productUrl || this.pendingRequestUrl || this.dataset.url;
           this.pendingRequestUrl = productUrl;
-          const shouldSwapProduct = this.dataset.url !== productUrl || this.dataset.updateUrl === 'true';
+          const shouldSwapProduct = this.dataset.url !== productUrl;
           const shouldFetchFullPage = this.dataset.updateUrl === 'true' && shouldSwapProduct;
+          const url_update = this.dataset.updateUrl === 'true'
   
           this.renderProductInfo({
             requestUrl: this.buildRequestUrlWithParams(productUrl, selectedOptionValues, shouldFetchFullPage),
             targetId: target.id,
             callback: shouldSwapProduct
-              ? this.handleSwapProduct(productUrl, shouldFetchFullPage)
+              ? this.handleSwapProduct(productUrl, shouldFetchFullPage, url_update)
               : this.handleUpdateProductInfo(productUrl),
           });
         }
@@ -85,7 +86,7 @@ if (!customElements.get('product-info')) {
           productForm?.handleErrorMessage();
         }
   
-        handleSwapProduct(productUrl, updateFullPage) {
+        handleSwapProduct(productUrl, updateFullPage, update_url) {
           return (html) => {
             this.productModal?.remove();
   
@@ -109,6 +110,9 @@ if (!customElements.get('product-info')) {
                 this.preProcessHtmlCallbacks,
                 this.postProcessHtmlCallbacks
               );
+            }
+            if(update_url){
+              handleUpdateProductInfo(productUrl)
             }
           };
         }
