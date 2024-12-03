@@ -69,14 +69,14 @@ if (!customElements.get('product-info')) {
           this.pendingRequestUrl = productUrl;
           const shouldSwapProduct = this.dataset.url !== productUrl;
           const shouldFetchFullPage = this.dataset.updateUrl === 'true' && shouldSwapProduct;
-          const url_update = this.dataset.updateUrl === 'true'
   
           this.renderProductInfo({
             requestUrl: this.buildRequestUrlWithParams(productUrl, selectedOptionValues, shouldFetchFullPage),
             targetId: target.id,
-            callback: shouldSwapProduct
-              ? this.handleSwapProduct(productUrl, shouldFetchFullPage, url_update)
-              : this.handleUpdateProductInfo(productUrl),
+            // callback: shouldSwapProduct
+            //   ? this.handleSwapProduct(productUrl, shouldFetchFullPage)
+            //   : this.handleUpdateProductInfo(productUrl),
+            callback: this.handleSwapProduct(productUrl, shouldFetchFullPage)
           });
         }
   
@@ -86,7 +86,7 @@ if (!customElements.get('product-info')) {
           productForm?.handleErrorMessage();
         }
   
-        handleSwapProduct(productUrl, updateFullPage, update_url) {
+        handleSwapProduct(productUrl, updateFullPage) {
           return (html) => {
             this.productModal?.remove();
   
@@ -111,10 +111,61 @@ if (!customElements.get('product-info')) {
                 this.postProcessHtmlCallbacks
               );
             }
-            if(update_url){
-              content_update(productUrl)
+
+            // const variant = this.getSelectedVariant(html);
+
+            const variantValues = variant.options
+            const mediaGallery = document.querySelector(`[id^="MediaGallery-${this.dataset.section}"]`)
+            if (mediaGallery.hasAttribute("media-grouping-enabled")) {
+              mediaGallery.querySelectorAll('[data-media-group]').forEach(el => el.classList.add('hide-media'))
+              variantValues.forEach(value => { mediaGallery.querySelectorAll(`[data-media-group="${value}"]`).forEach(el => el.classList.remove('hide-media')) })
+              mediaGallery.querySelectorAll('slider-component').forEach(slider => { slider.initPages() })
             }
-          };
+  
+            this.pickupAvailability?.update(variant);
+            this.updateOptionValues(html);
+            this.updateURL(productUrl, variant?.id);
+            this.updateVariantInputs(variant?.id);
+  
+            if (!variant) {
+              this.setUnavailable();
+              return;
+            }
+  
+            this.updateMedia(html, variant?.featured_media?.id);
+  
+            const updateSourceFromDestination = (id, shouldHide = (source) => false) => {
+              const source = html.getElementById(`${id}-${this.sectionId}`);
+              const destination = this.querySelector(`#${id}-${this.dataset.section}`);
+              if (source && destination) {
+                destination.innerHTML = source.innerHTML;
+                destination.classList.toggle('hidden', shouldHide(source));
+              }
+            };
+  
+            updateSourceFromDestination('price');
+            updateSourceFromDestination('Sku', ({ classList }) => classList.contains('hidden'));
+            updateSourceFromDestination('Inventory', ({ innerText }) => innerText === '');
+            updateSourceFromDestination('Volume');
+            updateSourceFromDestination('Price-Per-Item', ({ classList }) => classList.contains('hidden'));
+  
+            this.updateQuantityRules(this.sectionId, html);
+            this.querySelector(`#Quantity-Rules-${this.dataset.section}`)?.classList.remove('hidden');
+            this.querySelector(`#Volume-Note-${this.dataset.section}`)?.classList.remove('hidden');
+  
+            this.productForm?.toggleSubmitButton(
+              html.getElementById(`ProductSubmitButton-${this.sectionId}`)?.hasAttribute('disabled') ?? true,
+              window.variantStrings.soldOut
+            );
+  
+            publish(PUB_SUB_EVENTS.variantChange, {
+              data: {
+                sectionId: this.sectionId,
+                html,
+                variant,
+              },
+            });                
+          };    
         }
   
         renderProductInfo({ requestUrl, targetId, callback }) {
@@ -165,62 +216,6 @@ if (!customElements.get('product-info')) {
           }
         }
 
-        content_update(productUrl) {
-            const variant = this.getSelectedVariant(html);
-    
-            const variantValues = variant.options
-            const mediaGallery = document.querySelector(`[id^="MediaGallery-${this.dataset.section}"]`)
-            if (mediaGallery.hasAttribute("media-grouping-enabled")) {
-              mediaGallery.querySelectorAll('[data-media-group]').forEach(el => el.classList.add('hide-media'))
-              variantValues.forEach(value => { mediaGallery.querySelectorAll(`[data-media-group="${value}"]`).forEach(el => el.classList.remove('hide-media')) })
-              mediaGallery.querySelectorAll('slider-component').forEach(slider => { slider.initPages() })
-            }
-
-            this.pickupAvailability?.update(variant);
-            this.updateOptionValues(html);
-            this.updateURL(productUrl, variant?.id);
-            this.updateVariantInputs(variant?.id);
-
-            if (!variant) {
-              this.setUnavailable();
-              return;
-            }
-
-            this.updateMedia(html, variant?.featured_media?.id);
-
-            const updateSourceFromDestination = (id, shouldHide = (source) => false) => {
-              const source = html.getElementById(`${id}-${this.sectionId}`);
-              const destination = this.querySelector(`#${id}-${this.dataset.section}`);
-              if (source && destination) {
-                destination.innerHTML = source.innerHTML;
-                destination.classList.toggle('hidden', shouldHide(source));
-              }
-            };
-
-            updateSourceFromDestination('price');
-            updateSourceFromDestination('Sku', ({ classList }) => classList.contains('hidden'));
-            updateSourceFromDestination('Inventory', ({ innerText }) => innerText === '');
-            updateSourceFromDestination('Volume');
-            updateSourceFromDestination('Price-Per-Item', ({ classList }) => classList.contains('hidden'));
-
-            this.updateQuantityRules(this.sectionId, html);
-            this.querySelector(`#Quantity-Rules-${this.dataset.section}`)?.classList.remove('hidden');
-            this.querySelector(`#Volume-Note-${this.dataset.section}`)?.classList.remove('hidden');
-
-            this.productForm?.toggleSubmitButton(
-              html.getElementById(`ProductSubmitButton-${this.sectionId}`)?.hasAttribute('disabled') ?? true,
-              window.variantStrings.soldOut
-            );
-
-            publish(PUB_SUB_EVENTS.variantChange, {
-              data: {
-                sectionId: this.sectionId,
-                html,
-                variant,
-              },
-            });       
-        }
-
         handleUpdateProductInfo(productUrl) {
           return (html) => {
             const variant = this.getSelectedVariant(html);
@@ -238,10 +233,10 @@ if (!customElements.get('product-info')) {
             this.updateURL(productUrl, variant?.id);
             this.updateVariantInputs(variant?.id);
   
-            // if (!variant) {
-            //   this.setUnavailable();
-            //   return;
-            // }
+            if (!variant) {
+              this.setUnavailable();
+              return;
+            }
   
             this.updateMedia(html, variant?.featured_media?.id);
   
