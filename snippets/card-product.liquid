@@ -134,8 +134,8 @@
               </span>
             {%- elsif card_product.compare_at_price > card_product.price and card_product.available -%}
               {% liquid 
-                assign mrp = card_product.compare_at_price | money_with_currency
-                assign rp = card_product.price |  money_with_currency
+                assign mrp = card_product.compare_at_price | remove: "Rs. " | remove: "," | strip
+                assign rp = card_product.price |  remove: "Rs. " | remove: "," | strip
                 assign discount_amount = mrp |  minus : rp
                 assign discount_percentage = discount_amount |  divided_by: mrp | times: 100 | round
               %}              
@@ -564,8 +564,8 @@
             </span>
           {%- elsif card_product.compare_at_price > card_product.price and card_product.available -%}
             {% liquid 
-              assign mrp = card_product.compare_at_price | money_with_currency
-              assign rp = card_product.price |  money_with_currency
+              assign mrp = card_product.compare_at_price | remove: "Rs. " | remove: "," | strip
+              assign rp = card_product.price |  remove: "Rs. " | remove: "," | strip
               assign discount_amount = mrp |  minus : rp
               assign discount_percentage = discount_amount |  divided_by: mrp | times: 100 | round
             %}
